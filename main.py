@@ -29,15 +29,6 @@ def main():
                              nrows=1)
         args.lr_width, args.lr_height = header.values[0]
 
-        train_set = get_training_set(args)
-        validation_set = get_validation_set(args)
-        args.train_set_size = train_set.dataset_size
-        args.validation_set_size = validation_set.dataset_size
-        training_data_loader = DataLoader(dataset=train_set, batch_size=args.batchSize, shuffle=True)
-        validation_data_loader = DataLoader(dataset=validation_set, batch_size=args.testBatchSize, shuffle=False)
-        model = EVSRCNNTrainer(args, training_data_loader, validation_data_loader)
-        model.run()
-        print('Finish!')
 
     elif args.trainOrTest is 'Test':
         print('===> Testing datasets')
