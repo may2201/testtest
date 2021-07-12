@@ -31,17 +31,6 @@ parser.add_argument('--epochModelSaveStr', type=str, default='./result/epoch_%d_
 parser.add_argument('--hrValidationDataStr', type=str, default='./dataset/validation/LR_2')
 parser.add_argument('--lrValidationDataStr', type=str, default='./dataset/validation/LR_1')
 parser.add_argument('--TestDataIndex', type=int, default=35)
-parser.add_argument('--apsDataStr', type=str, default='E:/zihao/Winston/data/nfs-evsr-events/aps')
-parser.add_argument('--apsTrainTimestampStr', type=str, default='./dataset/train/nfs_frame_timestamp')
-parser.add_argument('--apsValidationTimestampStr', type=str, default='./dataset/validation/nfs_frame_timestamp')
-parser.add_argument('--apsTestTimestampStr', type=str, default='./dataset/test/nfs_frame_timestamp')
-parser.add_argument('--max_train_dataset_size', type=int, default=5)
-parser.add_argument('--max_validation_dataset_size', type=int, default=3)
-parser.add_argument('--event_norm', action='store_true')
-parser.add_argument('--channel_num', default=16, type=float,
-                    help="channel number of each event window.")
-
-args = parser.parse_args()
 
 
 def main():
