@@ -1,0 +1,60 @@
+
+logs/punet_ev_test/punet_epoch_04.pth
+mean cd: 0.001800121956123532
+
+logs/punet_ev_test/punet_epoch_09.pth
+mean cd: 0.00025321344690479097
+
+logs/punet_ev_test/punet_epoch_14.pth
+mean cd: 0.00028278306876484326
+
+logs/punet_ev_test/punet_epoch_19.pth
+mean cd: 0.00016258479266889226
+
+logs/punet_ev_test/punet_epoch_24.pth
+mean cd: 0.00012834004216394866
+
+logs/punet_ev_test/punet_epoch_29.pth
+mean cd: 0.00020171853035223387
+
+logs/punet_ev_test/punet_epoch_34.pth
+mean cd: 0.00010461406460019544
+
+logs/punet_ev_test/punet_epoch_39.pth
+mean cd: 0.00018564032859779884
+
+logs/punet_ev_test/punet_epoch_44.pth
+mean cd: 0.00041092749591657376
+
+logs/punet_ev_test/punet_epoch_49.pth
+mean cd: 0.000302282352806951
+
+logs/punet_ev_test/punet_epoch_54.pth
+mean cd: 0.00017463595611737226
+
+logs/punet_ev_test/punet_epoch_59.pth
+mean cd: 0.0002564212788803721
+
+logs/punet_ev_test/punet_epoch_64.pth
+mean cd: 0.00021666258785609042
+
+logs/punet_ev_test/punet_epoch_69.pth
+mean cd: 0.00026313896442719403
+
+logs/punet_ev_test/punet_epoch_74.pth
+mean cd: 0.0003890661089188188
+
+logs/punet_ev_test/punet_epoch_79.pth
+mean cd: 0.00039429444501735527
+
+logs/punet_ev_test/punet_epoch_84.pth
+mean cd: 0.0004318377647087144
+
+logs/punet_ev_test/punet_epoch_89.pth
+mean cd: 0.0001765734719446196
+
+logs/punet_ev_test/punet_epoch_94.pth
+mean cd: 0.0002199884810196988
+
+logs/punet_ev_test/punet_epoch_99.pth
+mean cd: 0.0002139588963635354
