@@ -6,18 +6,36 @@ from glob import glob
 import os
 
 class PUNET_Dataset_Whole(torch_data.Dataset):
-    def __init__(self, data_dir='./datas/test_data/our_collected_data/MC_5k'):
+    def __init__(self, data_dir='./datas/test_data/our_collected_data/MC_5k',
+                    is_discrete=False, npoints=-1):
         super().__init__()
 
         file_list = os.listdir(data_dir)
         self.names = [x.split('.')[0] for x in file_list]
         self.sample_path = [os.path.join(data_dir, x) for x in file_list]
+        self.is_discrete = is_discrete
+        self.npoints = npoints
 
     def __len__(self):
         return len(self.names)
 
     def __getitem__(self, index):
         points = np.loadtxt(self.sample_path[index])
+        # points[..., 1] = 0
+        
+        if self.npoints > 0:
+            data_npoint = len(points)
+            sample_idx = utils.nonuniform_sampling(data_npoint, sample_num=self.npoint)
+            points = points[sample_idx, :]
+
+        points = (points - np.min(points, axis=-2, keepdims=True)) / np.ptp(points, axis=-2, keepdims=True)
+        centroid = np.mean(points[..., :3], axis=0, keepdims=True)
+        furthest_distance = np.amax(np.sqrt(np.sum((points[..., :3] - centroid) ** 2, axis=-1)), axis=0, keepdims=True)
+        points[..., :3] -= centroid
+        points[..., :3] /= np.expand_dims(furthest_distance, axis=-1)
+        
+        if self.is_discrete:
+            points[..., 0] = points[..., 0] // 0.001 * 0.001
         return points
 
 
@@ -55,7 +73,8 @@ class PUNET_Dataset_WholeFPS_1k(torch_data.Dataset):
 
 class PUNET_Dataset(torch_data.Dataset):
     def __init__(self, h5_file_path='./datas/Patches_noHole_and_collected.h5', 
-                    skip_rate=1, npoint=1024, use_random=True, use_norm=True, split='train', is_training=True):
+                    skip_rate=1, npoint=1024, use_random=True, use_norm=True, split='train', is_training=True, 
+                    is_discrete=False):
         super().__init__()
         
         self.npoint = npoint
@@ -75,6 +94,16 @@ class PUNET_Dataset(torch_data.Dataset):
             self.input = self.input[split_choice, ...]
         elif split != 'all':
             raise NotImplementedError
+
+        # self.gt[..., 1] = 0
+        # self.input[..., 1] = 0
+        ####################
+        self.gt = (self.gt - np.min(self.gt, axis=-2, keepdims=True)) / np.ptp(self.gt, axis=-2, keepdims=True)
+        self.input = (self.input - np.min(self.input, axis=-2, keepdims=True)) / np.ptp(self.input, axis=-2, keepdims=True)
+        if is_discrete:
+            self.gt[..., 0] = self.gt[..., 0] // 0.001 * 0.001
+            self.input[..., 0] = self.input[..., 0] // 0.001 * 0.001
+        ####################
 
         assert len(self.input) == len(self.gt), 'invalid data'
         self.data_npoint = self.input.shape[1]
@@ -111,24 +140,28 @@ class PUNET_Dataset(torch_data.Dataset):
         sample_idx = utils.nonuniform_sampling(self.data_npoint, sample_num=self.npoint)
         input_data = input_data[sample_idx, :]
 
-        if self.use_norm:
-            if not self.is_training:
-                return input_data, gt_data, radius_data  #, centroid, furthest_distance, sample_idx
-            
-            # for data aug
-            input_data, gt_data = utils.rotate_point_cloud_and_gt(input_data, gt_data)
-            input_data, gt_data, scale = utils.random_scale_point_cloud_and_gt(input_data, gt_data,
-                                                                               scale_low=0.9, scale_high=1.1)
-            input_data, gt_data = utils.shift_point_cloud_and_gt(input_data, gt_data, shift_range=0.1)
-            radius_data = radius_data * scale
+        #### up_ratio = 1
+        # sample_idx_gt = utils.nonuniform_sampling(self.data_npoint, sample_num=self.npoint)
+        # gt_data = gt_data[sample_idx_gt, :]
 
-            # for input aug
-            if np.random.rand() > 0.5:
-                input_data = utils.jitter_perturbation_point_cloud(input_data, sigma=0.025, clip=0.05)
-            if np.random.rand() > 0.5:
-                input_data = utils.rotate_perturbation_point_cloud(input_data, angle_sigma=0.03, angle_clip=0.09)
-        else:
-            raise NotImplementedError
+        # if self.use_norm:
+        #     if not self.is_training:
+        #         return input_data, gt_data, radius_data  #, centroid, furthest_distance, sample_idx
+            
+        #     # for data aug
+        #     input_data, gt_data = utils.rotate_point_cloud_and_gt(input_data, gt_data)
+        #     input_data, gt_data, scale = utils.random_scale_point_cloud_and_gt(input_data, gt_data,
+        #                                                                        scale_low=0.9, scale_high=1.1)
+        #     input_data, gt_data = utils.shift_point_cloud_and_gt(input_data, gt_data, shift_range=0.1)
+        #     radius_data = radius_data * scale
+
+        #     # for input aug
+        #     if np.random.rand() > 0.5:
+        #         input_data = utils.jitter_perturbation_point_cloud(input_data, sigma=0.025, clip=0.05)
+        #     if np.random.rand() > 0.5:
+        #         input_data = utils.rotate_perturbation_point_cloud(input_data, angle_sigma=0.03, angle_clip=0.09)
+        # else:
+        #     raise NotImplementedError
 
         return input_data, gt_data, radius_data
 
