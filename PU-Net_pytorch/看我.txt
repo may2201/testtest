@@ -1,0 +1,13 @@
+先编译grnet_extensions里面的插件：
+    $ cd grnet_extensions/chamfer_dist 
+    $ python setup.py install --user
+cubic_feature_sampling, gridding, gridding_loss同上
+
+通过_train文件夹里面的bash脚本控制训练配置，
+如各种超参数、GPU配置、数据集路径、输出路径等
+单次训练得到的参数保存在logs/{extra_tag}目录下
+
+通过根目录下test_grnet.sh控制测试配置，
+参数含义同上
+单次测试得到的结果保存在outputs/{extra_tag}/{epoch}目录下
+将结果导出至有GUI的环境，然后用matlab读取ply文件以可视化
