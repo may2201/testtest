@@ -1,0 +1,45 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "punet_baseline_train",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--model", "punet",
+                "--batch_size", "32",
+                "--lr", "0.01",
+                "--log_dir", "logs/punet_baseline",
+                "--gpu", "7",
+                "--workers", "4"
+            ]
+        },
+        {
+            "name": "punet_event_eval",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--model", "punet",
+                "--resume", "logs/punet_ev_test/punet_epoch_34.pth",
+                "--gpu", "7",
+                "--h5_file_path", "datas/nfs50_no_polarity.hdf5",
+                "--npoint", "4096"
+            ]
+        }
+    ]
+}
