@@ -58,16 +58,14 @@ if __name__ == '__main__':
         name = names[itr]
         print(name+"...", end=' ')
         points = batch.float().cuda()
-        sparse_preds, dense_preds = model(points)
+        preds = model(points)
         
-        sparse_preds = sparse_preds.data.cpu().numpy()
-        dense_preds = dense_preds.data.cpu().numpy()
+        preds = preds.data.cpu().numpy()
         points = points.data.cpu().numpy()
 
         save_ply(os.path.join(args.save_dir, '{}_input.ply'.format(name)), points[0, :, :3])
-        save_ply(os.path.join(args.save_dir, '{}_s.ply'.format(name)), sparse_preds[0])
-        save_ply(os.path.join(args.save_dir, '{}_d.ply'.format(name)), dense_preds[0])
+        save_ply(os.path.join(args.save_dir, '{}_pred.ply'.format(name)), preds[0])
         # save_xyz_file(preds[0], os.path.join(args.save_dir, '{}.xyz'.format(name)))
-        print('{} with shape {}, output shape {}'.format(name, points.shape, dense_preds.shape))
+        print('{} with shape {}, output shape {}'.format(name, points.shape, preds.shape))
         if itr > 50:
             break

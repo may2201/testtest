@@ -22,6 +22,5 @@ python eval.py \
     --h5_file_path datas/${h5_file_path}
 
 python eval.py --model punet --npoint 4096 --gpu 0 --resume logs/punet_ev_l1/punet_epoch_99.pth --h5_file_path datas/nfs50_no_polarity.hdf5 --output_name punet_l1
-python eval.py --model punet --npoint 4096 --gpu 0 --resume logs/punet_ev_l2/punet_epoch_99.pth --h5_file_path datas/nfs50_no_polarity.hdf5 --output_name punet_l2
-python eval.py --model punet --npoint 4096 --gpu 0 --resume logs/punet_ev_smoothl1/punet_epoch_99.pth --h5_file_path datas/nfs50_no_polarity.hdf5 --output_name punet_smoothl1
-
+python eval.py --model punet --npoint 4096 --gpu 1 --resume logs/punet_ev_l2/punet_epoch_99.pth --h5_file_path datas/nfs50_no_polarity.hdf5 --output_name punet_l2
+python eval.py --model punet --npoint 4096 --gpu 2 --resume logs/punet_ev_smoothl1/punet_epoch_99.pth --h5_file_path datas/nfs50_no_polarity.hdf5 --output_name punet_smoothl1

@@ -7,23 +7,24 @@ import os
 
 class PUNET_Dataset_Whole(torch_data.Dataset):
     def __init__(self, data_dir='./datas/test_data/our_collected_data/MC_5k',
-                    is_discrete=False, npoints=-1):
+                    is_discrete=False, npoint=-1):
         super().__init__()
 
         file_list = os.listdir(data_dir)
         self.names = [x.split('.')[0] for x in file_list]
         self.sample_path = [os.path.join(data_dir, x) for x in file_list]
         self.is_discrete = is_discrete
-        self.npoints = npoints
+        self.npoint = npoint
 
     def __len__(self):
         return len(self.names)
 
     def __getitem__(self, index):
         points = np.loadtxt(self.sample_path[index])
+        points = points[..., :3]
         # points[..., 1] = 0
         
-        if self.npoints > 0:
+        if self.npoint > 0:
             data_npoint = len(points)
             sample_idx = utils.nonuniform_sampling(data_npoint, sample_num=self.npoint)
             points = points[sample_idx, :]

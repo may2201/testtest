@@ -9,6 +9,9 @@ parser.add_argument("--use_bn", action='store_true', default=False)
 parser.add_argument("--use_res", action='store_true', default=False)
 parser.add_argument("--save_dir", type=str, required=True)
 parser.add_argument('--resume', type=str, required=True)
+parser.add_argument('--data_dir', type=str, default='./datas/test_data/our_collected_data/MC_5k')
+parser.add_argument('--npoint', type=int, default=1024)
+parser.add_argument('--use_discrete', default=False)
 
 args = parser.parse_args()
 print(args)
@@ -27,20 +30,22 @@ import importlib
 
 if __name__ == '__main__':
     MODEL = importlib.import_module('models.' + args.model)
-    model = MODEL.get_model(npoint=1024, up_ratio=args.up_ratio, 
+    model = MODEL.get_model(npoint=args.npoint, up_ratio=args.up_ratio, 
                 use_normal=False, use_bn=args.use_bn, use_res=args.use_res)
 
     checkpoint = torch.load(args.resume)
     model.load_state_dict(checkpoint['model_state'])
     model.eval().cuda()
 
-    eval_dst = PUNET_Dataset_Whole(data_dir='./datas/test_data/our_collected_data/MC_5k')
+    eval_dst = PUNET_Dataset_Whole(data_dir=args.data_dir,
+                is_discrete=args.use_discrete)
     eval_loader = DataLoader(eval_dst, batch_size=1, 
                         shuffle=False, pin_memory=True, num_workers=0)
     
     names = eval_dst.names
     for itr, batch in enumerate(eval_loader):
         name = names[itr]
+        print(name+"...", end=' ')
         points = batch.float().cuda()
         preds = model(points, npoint=points.shape[1])
         
@@ -50,3 +55,5 @@ if __name__ == '__main__':
         save_ply(os.path.join(args.save_dir, '{}.ply'.format(name)), preds[0])
         save_xyz_file(preds[0], os.path.join(args.save_dir, '{}.xyz'.format(name)))
         print('{} with shape {}, output shape {}'.format(name, points.shape, preds.shape))
+        if itr > 50:
+            break

@@ -39,6 +39,8 @@ from grnet_extensions.chamfer_dist import ChamferDistance
 from grnet_extensions.gridding_loss import GriddingLoss
 from models.grnet import GRNet
 
+import importlib
+
 from dataset import PUNET_Dataset
 import numpy as np
 
@@ -76,7 +78,8 @@ if __name__ == '__main__':
         num_workers=args.workers
     )
     
-    model = GRNet(
+    MODEL = importlib.import_module('models.' + args.model)
+    model = MODEL.get_model(
         npoint=args.npoint, 
         up_ratio=args.up_ratio, 
         use_normal=False, 
@@ -96,15 +99,17 @@ if __name__ == '__main__':
         optimizer, milestones=args.decay_step_list, gamma=0.5
     )
     chamfer_dist = ChamferDistance()
-    gridding_loss = GriddingLoss(    # lgtm [py/unused-local-variable]
-        scales=[128], alphas=[0.1]
-    )
+    # gridding_loss = GriddingLoss(    # lgtm [py/unused-local-variable]
+    #     scales=[128], alphas=[0.1]
+    # )
 
     model.train()
     for epoch in range(args.max_epoch):
         loss_list = []
         s_cd_loss_list = []
         d_cd_loss_list = []
+        s_gd_loss_list = []
+        d_gd_loss_list = []
 
         for idx, batch in enumerate(train_loader):
             input_data, gt_data, _ = batch
@@ -112,22 +117,36 @@ if __name__ == '__main__':
             input_data = input_data.cuda()
             gt_data = gt_data[..., :3].contiguous().cuda()
 
-            sparse_preds, dense_preds = model(input_data)
+            # sparse_preds, dense_preds = model(input_data)
+            dense_preds = model(input_data)
 
-            sparse_loss = chamfer_dist(sparse_preds, gt_data)
-            dense_loss = chamfer_dist(dense_preds, gt_data)
-            loss = sparse_loss + dense_loss
+            # sparse_loss_1 = chamfer_dist(sparse_preds, gt_data)
+            dense_loss_1 = chamfer_dist(dense_preds, gt_data)
+            # sparse_loss_2 = torch.tensor(0.)
+            dense_loss_2 = torch.tensor(0.)
+            # sparse_loss_2 = gridding_loss(sparse_preds, gt_data) * 10
+            # dense_loss_2 = gridding_loss(dense_preds, gt_data) * 10
+
+            # sparse_loss = sparse_loss_1 + sparse_loss_2 
+            dense_loss = dense_loss_1 + dense_loss_2 
+            # loss = sparse_loss + dense_loss
+            loss = dense_loss
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
              
             loss_list.append(loss.item()*1000)
-            s_cd_loss_list.append(sparse_loss.item()*1000)
-            d_cd_loss_list.append(dense_loss.item()*1000)
+            # s_cd_loss_list.append(sparse_loss_1.item()*1000)
+            s_cd_loss_list.append(0.)
+            d_cd_loss_list.append(dense_loss_1.item()*1000)
+            # s_gd_loss_list.append(sparse_loss_2.item()*1000)
+            s_gd_loss_list.append(0.)
+            d_gd_loss_list.append(dense_loss_2.item()*1000)
             
-        print(' -- epoch {}, cd loss {:.4f}, sparse cd loss {:.4f}, dense cd loss {:.4f}, lr {}.'.format(
+        print(' -- epoch {}, loss {:.6f}, sparse cd loss {:.6f}, dense cd loss {:.6f}, sparse grid loss {:.6f}, dense grid loss {:.6f}, lr {}.'.format(
             epoch, np.mean(loss_list), np.mean(s_cd_loss_list), np.mean(d_cd_loss_list), \
+            np.mean(s_gd_loss_list), np.mean(d_gd_loss_list), \
             optimizer.state_dict()['param_groups'][0]['lr']))
         
         lr_scheduler.step()
